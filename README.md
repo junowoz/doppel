@@ -2,13 +2,9 @@
 
 **Exact duplicate finder for macOS. Private, local, safe.**
 
-<p align="center">
-  <img src="docs/assets/doppel-app-icon-256.png" width="128" alt="Doppel app icon">
-</p>
-
-![Doppel main window](docs/screenshots/doppel-main-window.png)
-
 Doppel is a native Apple Silicon macOS app for finding exact duplicate files in one or more folders. It is built for local-first use: no login, no analytics, no telemetry, no tracking, and no external SDKs. The only in-app network feature is the user-triggered updater, which checks official GitHub Releases.
+
+Download: [GitHub Releases](https://github.com/junowoz/doppel/releases)
 
 ## Download
 
@@ -31,12 +27,6 @@ After downloading, unzip the app and move `Doppel.app` to Applications. Builds a
 - Move selected duplicates to Trash. Doppel never deletes files permanently.
 - Export JSON reports.
 - Built-in updater that checks GitHub Releases, downloads the app archive, verifies the published SHA-256 checksum, validates the app bundle, installs, relaunches, and removes temporary update files.
-
-## Screenshots
-
-Screenshots live in [`docs/screenshots`](docs/screenshots). Replace them with polished release screenshots when the UI is staged exactly how you want it.
-
-![Doppel update panel](docs/screenshots/doppel-update-window.png)
 
 ## Security And Privacy
 
@@ -74,6 +64,18 @@ Verification levels shown in the app:
 5. Review each duplicate group and the recommended keep/remove badges.
 6. Move selected duplicates to Trash only after reviewing them.
 7. Export a JSON report if you want an audit trail.
+
+## Screenshots
+
+Screenshots live in [`docs/screenshots`](docs/screenshots). Replace them with polished release screenshots when the UI is staged exactly how you want it.
+
+<p>
+  <img src="docs/screenshots/doppel-main-window.png" width="820" alt="Doppel main window">
+</p>
+
+<p>
+  <img src="docs/screenshots/doppel-update-window.png" width="820" alt="Doppel update panel">
+</p>
 
 ## Updates
 
