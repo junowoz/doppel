@@ -1,6 +1,12 @@
 import Combine
 import Foundation
 
+public enum FileReviewState: Equatable, Sendable {
+    case keep
+    case remove
+    case needsReview
+}
+
 @MainActor
 public final class MainViewModel: ObservableObject {
     @Published public var folders: [URL]
@@ -65,11 +71,14 @@ public final class MainViewModel: ObservableObject {
     }
 
     public var totalRemovableFiles: Int {
-        scanResult?.removableFileCount ?? 0
+        selectedRemovalFileIDs.count
     }
 
     public var potentialSavings: Int64 {
-        scanResult?.potentialSavings ?? 0
+        guard let result = scanResult else { return 0 }
+        return result.duplicateGroups.reduce(Int64(0)) { total, group in
+            total + selectedSavings(in: group)
+        }
     }
 
     public var canMoveSelectedFiles: Bool {
@@ -162,17 +171,69 @@ public final class MainViewModel: ObservableObject {
         selectedRemovalFileIDs.contains(file.id)
     }
 
-    public func setRemovalSelection(_ selected: Bool, file: ScannedFile, group: DuplicateGroup) {
-        if selected {
-            let currentlySelectedInGroup = selectedRemovalFileIDs.intersection(Set(group.files.map(\.id)))
-            guard currentlySelectedInGroup.count < group.files.count - 1 else {
-                statusMessage = "At least one file is always kept."
-                return
-            }
-            selectedRemovalFileIDs.insert(file.id)
-        } else {
-            selectedRemovalFileIDs.remove(file.id)
+    public func selectedRemovalIDs(in group: DuplicateGroup) -> Set<ScannedFile.ID> {
+        selectedRemovalFileIDs.intersection(Set(group.files.map(\.id)))
+    }
+
+    public func selectedRemovalCount(in group: DuplicateGroup) -> Int {
+        selectedRemovalIDs(in: group).count
+    }
+
+    public func selectedSavings(in group: DuplicateGroup) -> Int64 {
+        let removalIDs = selectedRemovalIDs(in: group)
+        return group.files.reduce(Int64(0)) { total, file in
+            removalIDs.contains(file.id) ? total + file.size : total
         }
+    }
+
+    public func reviewState(for file: ScannedFile, in group: DuplicateGroup) -> FileReviewState {
+        if isSelectedForRemoval(file) {
+            return .remove
+        }
+        if selectedRemovalCount(in: group) > 0 || file.id == group.recommendedKeepFileID {
+            return .keep
+        }
+        return .needsReview
+    }
+
+    public func setRemovalSelection(_ selected: Bool, file: ScannedFile, group: DuplicateGroup) {
+        let groupIDs = Set(group.files.map(\.id))
+        guard groupIDs.contains(file.id) else { return }
+
+        var selectedInGroup = selectedRemovalIDs(in: group)
+        if selected {
+            selectedInGroup.insert(file.id)
+            if selectedInGroup.count == group.files.count {
+                guard let fallbackKeepFile = group.files.first(where: { $0.id != file.id }) else {
+                    statusMessage = "At least one file is always kept."
+                    return
+                }
+                selectedInGroup.remove(fallbackKeepFile.id)
+                statusMessage = "Keeping \(fallbackKeepFile.filename)."
+            } else {
+                statusMessage = "Marked \(file.filename) for Trash."
+            }
+        } else {
+            selectedInGroup.remove(file.id)
+            statusMessage = "Keeping \(file.filename)."
+        }
+
+        applyRemovalSelection(selectedInGroup, in: group)
+    }
+
+    public func toggleRemovalSelection(for file: ScannedFile, in group: DuplicateGroup) {
+        setRemovalSelection(!isSelectedForRemoval(file), file: file, group: group)
+    }
+
+    public func markFileToKeep(_ file: ScannedFile, in group: DuplicateGroup) {
+        let groupIDs = Set(group.files.map(\.id))
+        guard groupIDs.contains(file.id), group.files.count > 1 else {
+            statusMessage = "At least one file is always kept."
+            return
+        }
+
+        applyRemovalSelection(groupIDs.subtracting([file.id]), in: group)
+        statusMessage = "Keeping \(file.filename)."
     }
 
     public func moveSelectedToTrash() async {
@@ -188,10 +249,10 @@ public final class MainViewModel: ObservableObject {
 
         do {
             for group in result.duplicateGroups {
-                let removalIDs = selectedIDs.intersection(Set(group.files.map(\.id)))
+                let groupIDs = Set(group.files.map(\.id))
+                let removalIDs = selectedIDs.intersection(groupIDs)
                 guard !removalIDs.isEmpty else { continue }
-                let keepID = group.recommendedKeepFileID ?? group.files.first(where: { !removalIDs.contains($0.id) })?.id
-                guard let keepID else { continue }
+                guard let keepID = group.files.first(where: { !removalIDs.contains($0.id) })?.id else { continue }
 
                 let log = try actionService.moveSelectedToTrash(
                     group: group,
@@ -230,18 +291,58 @@ public final class MainViewModel: ObservableObject {
         statusMessage = result.duplicateGroups.isEmpty ? "No exact duplicates found" : "Finished"
     }
 
+    private func applyRemovalSelection(_ selectedInGroup: Set<ScannedFile.ID>, in group: DuplicateGroup) {
+        guard selectedInGroup.count < group.files.count else {
+            statusMessage = "At least one file is always kept."
+            return
+        }
+
+        let groupIDs = Set(group.files.map(\.id))
+        selectedRemovalFileIDs.subtract(groupIDs)
+        selectedRemovalFileIDs.formUnion(selectedInGroup)
+        updateRemovalPlan(for: group, selectedRemovalIDs: selectedInGroup)
+    }
+
+    private func updateRemovalPlan(for group: DuplicateGroup, selectedRemovalIDs: Set<ScannedFile.ID>) {
+        guard var result = scanResult,
+              let groupIndex = result.duplicateGroups.firstIndex(where: { $0.id == group.id })
+        else {
+            return
+        }
+
+        let currentGroup = result.duplicateGroups[groupIndex]
+        let keepFileID = currentGroup.files.first(where: { !selectedRemovalIDs.contains($0.id) })?.id
+
+        result.duplicateGroups[groupIndex] = DuplicateGroup(
+            id: currentGroup.id,
+            files: currentGroup.files,
+            sha256: currentGroup.sha256,
+            verificationLevel: currentGroup.verificationLevel,
+            recommendedKeepFileID: keepFileID,
+            recommendedRemovalFileIDs: selectedRemovalIDs,
+            recommendationReasons: currentGroup.recommendationReasons
+        )
+        scanResult = result
+    }
+
     private func removeMovedFilesFromResult(_ movedIDs: Set<ScannedFile.ID>) {
         guard var result = scanResult else { return }
         result.duplicateGroups = result.duplicateGroups.compactMap { group in
             let remainingFiles = group.files.filter { !movedIDs.contains($0.id) }
             guard remainingFiles.count > 1 else { return nil }
+            let remainingFileIDs = Set(remainingFiles.map(\.id))
+            let remainingRemovalIDs = group.recommendedRemovalFileIDs
+                .subtracting(movedIDs)
+                .intersection(remainingFileIDs)
+            let keepFileID = remainingFiles.first(where: { !remainingRemovalIDs.contains($0.id) })?.id
+
             return DuplicateGroup(
                 id: group.id,
                 files: remainingFiles,
                 sha256: group.sha256,
                 verificationLevel: group.verificationLevel,
-                recommendedKeepFileID: group.recommendedKeepFileID,
-                recommendedRemovalFileIDs: group.recommendedRemovalFileIDs.subtracting(movedIDs),
+                recommendedKeepFileID: keepFileID,
+                recommendedRemovalFileIDs: remainingRemovalIDs,
                 recommendationReasons: group.recommendationReasons
             )
         }

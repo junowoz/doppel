@@ -17,7 +17,7 @@ struct MainView: View {
             DuplicateGroupsView(viewModel: viewModel)
                 .navigationSplitViewColumnWidth(min: 420, ideal: 640)
         } detail: {
-            FilePreviewView(file: viewModel.selectedFile, group: viewModel.selectedGroup)
+            FilePreviewView(viewModel: viewModel)
                 .navigationSplitViewColumnWidth(min: 300, ideal: 380, max: 520)
         }
         .toolbar {

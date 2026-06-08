@@ -3,8 +3,15 @@ import DoppelCore
 import SwiftUI
 
 struct FilePreviewView: View {
-    var file: ScannedFile?
-    var group: DuplicateGroup?
+    @ObservedObject var viewModel: MainViewModel
+
+    private var file: ScannedFile? {
+        viewModel.selectedFile
+    }
+
+    private var group: DuplicateGroup? {
+        viewModel.selectedGroup
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -38,6 +45,24 @@ struct FilePreviewView: View {
                             NSPasteboard.general.setString(file.path, forType: .string)
                         } label: {
                             Label("Copy Path", systemImage: "doc.on.doc")
+                        }
+                    }
+
+                    if let group {
+                        HStack {
+                            Button {
+                                viewModel.markFileToKeep(file, in: group)
+                            } label: {
+                                Label("Keep This File", systemImage: "checkmark.circle")
+                            }
+                            .disabled(viewModel.reviewState(for: file, in: group) == .keep && viewModel.selectedRemovalCount(in: group) == group.files.count - 1)
+
+                            Button(role: .destructive) {
+                                viewModel.setRemovalSelection(true, file: file, group: group)
+                            } label: {
+                                Label("Move File to Trash", systemImage: "trash")
+                            }
+                            .disabled(viewModel.isSelectedForRemoval(file))
                         }
                     }
                 }

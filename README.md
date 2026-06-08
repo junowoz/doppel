@@ -33,6 +33,7 @@ After downloading the DMG, open it and drag `Doppel.app` to Applications. Builds
 - Recursive folder scanning with user-selected folders.
 - Duplicate detection by size, SHA-256, and byte-by-byte confirmation in Safe and Paranoid modes.
 - Conservative recommendations that keep at least one file in every group.
+- Manual keep/remove selection before moving files to Trash.
 - Hardlinked files are marked for review instead of being automatically recommended for removal.
 - iPhone-style copy name handling such as `IMG_4472.HEIC` and `IMG_4472 2.heic`.
 - Native SwiftUI interface with sidebar, duplicate groups, and preview details.
@@ -73,7 +74,7 @@ Verification levels shown in the app:
 2. Click **Add Folder** and choose the folder you want to scan.
 3. Review the scan options in the sidebar.
 4. Click **Scan**.
-5. Review each duplicate group and the recommended keep/remove badges.
+5. Review each duplicate group and choose which files stay or move to Trash.
 6. Move selected duplicates to Trash only after reviewing them.
 7. Export a JSON report if you want an audit trail.
 
@@ -174,6 +175,7 @@ Do not commit real secrets.
 - v0.1.1: Launch polish, Apple Silicon release packaging, app icon, screenshot assets, safe update entrypoint, and hardlink recommendation hardening.
 - v0.1.2: Built-in GitHub Releases updater with checksum validation, bundle validation, helper-based install, and temporary file cleanup.
 - v0.1.3: Polished DMG installer layout with Applications shortcut and drag-to-install background.
+- v0.1.4: Manual keep/remove selection before moving duplicates to Trash.
 - v0.2.0: Multiple folder polish, CSV export UI, image previews, review folder moves, progress improvements.
 - v0.3.0: Video previews, file filters, minimum size polish, security-scoped bookmark persistence, iCloud handling.
 - v1.0.0: Signing, notarization, polished DMG, expanded tests, stable security and privacy policies.

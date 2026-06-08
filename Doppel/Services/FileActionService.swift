@@ -8,6 +8,7 @@ public enum FileActionError: Error, LocalizedError, Equatable {
     case hashChanged(String)
     case byteComparisonFailed(String)
     case unknownFileID
+    case keepFileSelectedForRemoval
 
     public var errorDescription: String? {
         switch self {
@@ -18,6 +19,7 @@ public enum FileActionError: Error, LocalizedError, Equatable {
         case .hashChanged(let path): "File hash changed before action: \(path)"
         case .byteComparisonFailed(let path): "Byte comparison failed before action: \(path)"
         case .unknownFileID: "Selected file was not found in the duplicate group."
+        case .keepFileSelectedForRemoval: "The file to keep cannot also be selected for Trash."
         }
     }
 }
@@ -46,6 +48,9 @@ public struct FileActionService {
         guard !removalFileIDs.isEmpty else { return }
         guard removalFileIDs.count < group.files.count else {
             throw FileActionError.allFilesSelected
+        }
+        guard !removalFileIDs.contains(keepFileID) else {
+            throw FileActionError.keepFileSelectedForRemoval
         }
         guard let keepFile = group.files.first(where: { $0.id == keepFileID }) else {
             throw FileActionError.unknownFileID

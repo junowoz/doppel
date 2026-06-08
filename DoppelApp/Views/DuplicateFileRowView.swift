@@ -3,9 +3,10 @@ import SwiftUI
 
 struct DuplicateFileRowView: View {
     var file: ScannedFile
-    var group: DuplicateGroup
     var isSelectedForRemoval: Bool
+    var reviewState: FileReviewState
     var toggleRemoval: () -> Void
+    var keepFile: () -> Void
 
     var body: some View {
         HStack(spacing: 10) {
@@ -15,7 +16,7 @@ struct DuplicateFileRowView: View {
             }
             .buttonStyle(.plain)
             .frame(width: 20)
-                .disabled(file.id == group.recommendedKeepFileID)
+            .help(isSelectedForRemoval ? "Keep this file" : "Move this file to Trash")
 
             Image(systemName: iconName)
                 .foregroundStyle(.secondary)
@@ -39,19 +40,35 @@ struct DuplicateFileRowView: View {
         }
         .padding(.leading, 18)
         .padding(.vertical, 3)
+        .contextMenu {
+            Button {
+                keepFile()
+            } label: {
+                Label("Keep This File", systemImage: "checkmark.circle")
+            }
+
+            if !isSelectedForRemoval {
+                Button(role: .destructive) {
+                    toggleRemoval()
+                } label: {
+                    Label("Move File to Trash", systemImage: "trash")
+                }
+            }
+        }
     }
 
     private var badge: some View {
         Group {
-            if file.id == group.recommendedKeepFileID {
+            switch reviewState {
+            case .keep:
                 Text("Keep")
                     .foregroundStyle(.green)
                     .background(.green.opacity(0.12), in: Capsule())
-            } else if isSelectedForRemoval {
+            case .remove:
                 Text("Remove")
                     .foregroundStyle(.red)
                     .background(.red.opacity(0.12), in: Capsule())
-            } else {
+            case .needsReview:
                 Text("Needs review")
                     .foregroundStyle(.yellow)
                     .background(.yellow.opacity(0.15), in: Capsule())

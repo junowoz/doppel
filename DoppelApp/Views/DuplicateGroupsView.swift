@@ -17,7 +17,11 @@ struct DuplicateGroupsView: View {
                 List(selection: $viewModel.selectedGroupID) {
                     ForEach(viewModel.duplicateGroups) { group in
                         Section {
-                            DuplicateGroupRowView(group: group)
+                            DuplicateGroupRowView(
+                                group: group,
+                                selectedRemovalCount: viewModel.selectedRemovalCount(in: group),
+                                selectedSavings: viewModel.selectedSavings(in: group)
+                            )
                                 .tag(group.id)
                                 .contentShape(Rectangle())
                                 .onTapGesture {
@@ -27,10 +31,13 @@ struct DuplicateGroupsView: View {
                             ForEach(group.files) { file in
                                 DuplicateFileRowView(
                                     file: file,
-                                    group: group,
                                     isSelectedForRemoval: viewModel.isSelectedForRemoval(file),
+                                    reviewState: viewModel.reviewState(for: file, in: group),
                                     toggleRemoval: {
-                                        viewModel.setRemovalSelection(!viewModel.isSelectedForRemoval(file), file: file, group: group)
+                                        viewModel.toggleRemovalSelection(for: file, in: group)
+                                    },
+                                    keepFile: {
+                                        viewModel.markFileToKeep(file, in: group)
                                     }
                                 )
                                 .contentShape(Rectangle())

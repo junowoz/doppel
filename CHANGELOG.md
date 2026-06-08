@@ -2,6 +2,17 @@
 
 All notable changes to Doppel will be documented in this file.
 
+## [0.1.4] - 2026-06-08
+
+### Added
+
+- Added manual keep/remove selection so users can choose which duplicate file stays before moving selected files to Trash.
+
+### Changed
+
+- Group and footer removable counts now reflect the current manual selection plan.
+- Move-to-Trash validation now rejects any inconsistent plan that selects the keep file for removal.
+
 ## [0.1.3] - 2026-06-08
 
 ### Changed

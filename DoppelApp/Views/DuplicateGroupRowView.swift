@@ -3,6 +3,8 @@ import SwiftUI
 
 struct DuplicateGroupRowView: View {
     var group: DuplicateGroup
+    var selectedRemovalCount: Int
+    var selectedSavings: Int64
 
     var body: some View {
         HStack(spacing: 10) {
@@ -13,7 +15,7 @@ struct DuplicateGroupRowView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text("\(group.files.count) matching files")
                     .font(.headline)
-                Text("\(group.removableCount) removable · \(AppFormatters.fileSize(group.size)) each · saves \(AppFormatters.fileSize(group.totalLogicalWastedBytes))")
+                Text("\(selectedRemovalCount) removable · \(AppFormatters.fileSize(group.size)) each · saves \(AppFormatters.fileSize(selectedSavings))")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
