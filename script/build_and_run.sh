@@ -6,7 +6,7 @@ APP_NAME="Doppel"
 UPDATER_NAME="DoppelUpdater"
 BUNDLE_ID="com.junowoz.doppel"
 UPDATER_BUNDLE_ID="com.junowoz.doppel.updater"
-VERSION="0.1.2"
+VERSION="0.1.3"
 MIN_SYSTEM_VERSION="14.0"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

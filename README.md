@@ -1,20 +1,32 @@
-# Doppel
+<p align="center">
+  <img src="docs/assets/doppel-app-icon-256.png" width="96" alt="Doppel app icon">
+</p>
 
-**Exact duplicate finder for macOS. Private, local, safe.**
+<h1 align="center">Doppel</h1>
+
+<p align="center">
+  <strong>Exact duplicate finder for macOS. Private, local, safe.</strong>
+</p>
+
+<p align="center">
+  <a href="https://github.com/junowoz/doppel/releases">Download</a>
+  ·
+  <a href="docs/security.md">Security</a>
+  ·
+  <a href="docs/architecture.md">Architecture</a>
+</p>
 
 Doppel is a native Apple Silicon macOS app for finding exact duplicate files in one or more folders. It is built for local-first use: no login, no analytics, no telemetry, no tracking, and no external SDKs. The only in-app network feature is the user-triggered updater, which checks official GitHub Releases.
-
-Download: [GitHub Releases](https://github.com/junowoz/doppel/releases)
 
 ## Download
 
 Download the latest Apple Silicon build from [GitHub Releases](https://github.com/junowoz/doppel/releases).
 
-- `Doppel.app.zip`: app bundle archive.
-- `Doppel.dmg`: optional disk image.
+- `Doppel.dmg`: drag-to-Applications installer.
+- `Doppel.app.zip`: app bundle archive for manual installs or in-app updates.
 - `.sha256` files: checksums for verification.
 
-After downloading, unzip the app and move `Doppel.app` to Applications. Builds are Apple Silicon only (`arm64`) and target modern macOS.
+After downloading the DMG, open it and drag `Doppel.app` to Applications. Builds are Apple Silicon only (`arm64`) and target modern macOS.
 
 ## Features
 
@@ -67,14 +79,16 @@ Verification levels shown in the app:
 
 ## Screenshots
 
-Screenshots live in [`docs/screenshots`](docs/screenshots). Replace them with polished release screenshots when the UI is staged exactly how you want it.
-
 <p>
   <img src="docs/screenshots/doppel-main-window.png" width="820" alt="Doppel main window">
 </p>
 
 <p>
   <img src="docs/screenshots/doppel-update-window.png" width="820" alt="Doppel update panel">
+</p>
+
+<p>
+  <img src="docs/screenshots/doppel-dmg-installer.png" width="640" alt="Doppel DMG installer">
 </p>
 
 ## Updates
@@ -159,6 +173,7 @@ Do not commit real secrets.
 - v0.1.0: MVP with scanning, byte confirmation, recommendations, Trash moves, JSON export, tests, docs, and CI.
 - v0.1.1: Launch polish, Apple Silicon release packaging, app icon, screenshot assets, safe update entrypoint, and hardlink recommendation hardening.
 - v0.1.2: Built-in GitHub Releases updater with checksum validation, bundle validation, helper-based install, and temporary file cleanup.
+- v0.1.3: Polished DMG installer layout with Applications shortcut and drag-to-install background.
 - v0.2.0: Multiple folder polish, CSV export UI, image previews, review folder moves, progress improvements.
 - v0.3.0: Video previews, file filters, minimum size polish, security-scoped bookmark persistence, iCloud handling.
 - v1.0.0: Signing, notarization, polished DMG, expanded tests, stable security and privacy policies.

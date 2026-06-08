@@ -2,6 +2,13 @@
 
 All notable changes to Doppel will be documented in this file.
 
+## [0.1.3] - 2026-06-08
+
+### Changed
+
+- Improved the DMG installer with a polished Finder layout, large app icon, Applications shortcut, and drag-to-install background.
+- Release DMGs now open as a guided installer instead of a raw app bundle folder.
+
 ## [0.1.2] - 2026-06-08
 
 ### Added
