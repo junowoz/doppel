@@ -39,4 +39,24 @@ final class FileActionServiceTests: XCTestCase {
             )
         }
     }
+
+    func testSafeModeRepeatsByteComparisonBeforeMoving() throws {
+        try withTemporaryDirectory { directory in
+            let keep = try ScannedFile(url: writeFile(directory, "keep.txt", makeData("same")))
+            let removeURL = try writeFile(directory, "remove.txt", makeData("same"))
+            let remove = try ScannedFile(url: removeURL)
+            let group = DuplicateGroup(files: [keep, remove], sha256: try HashService().sha256(for: keep.url), verificationLevel: .byteByByteConfirmed)
+
+            try makeData("diff").write(to: removeURL)
+
+            XCTAssertThrowsError(
+                try FileActionService().validateMovePlan(
+                    group: group,
+                    keepFileID: keep.id,
+                    removalFileIDs: [remove.id],
+                    compareMode: .safe
+                )
+            )
+        }
+    }
 }

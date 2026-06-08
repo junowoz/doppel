@@ -65,6 +65,13 @@ struct MainView: View {
                 .disabled(viewModel.scanResult == nil)
 
                 Button {
+                    NSWorkspace.shared.open(AppMetadata.releasesURL)
+                } label: {
+                    Label("Check for Updates", systemImage: "arrow.down.circle")
+                }
+                .help("Open the official Doppel releases page in your browser.")
+
+                Button {
                     NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
                 } label: {
                     Label("Settings", systemImage: "gearshape")
@@ -74,6 +81,8 @@ struct MainView: View {
         .safeAreaInset(edge: .bottom) {
             BottomSummaryBar(viewModel: viewModel)
         }
+        .animation(.snappy(duration: 0.22), value: viewModel.scanState)
+        .animation(.snappy(duration: 0.22), value: viewModel.totalDuplicateGroups)
         .alert("Selected files will be moved to Trash.", isPresented: $showTrashConfirmation) {
             Button("Move to Trash", role: .destructive) {
                 Task {

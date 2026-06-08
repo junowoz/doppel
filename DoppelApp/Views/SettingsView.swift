@@ -1,3 +1,4 @@
+import AppKit
 import DoppelCore
 import SwiftUI
 
@@ -12,6 +13,9 @@ struct SettingsView: View {
                 Text("Paranoid").tag(CompareMode.paranoid)
             }
             Toggle("Include macOS packages", isOn: $viewModel.settings.includePackages)
+            Button("Check for Updates") {
+                NSWorkspace.shared.open(AppMetadata.releasesURL)
+            }
             Button("Save") {
                 try? viewModel.save()
             }

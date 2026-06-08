@@ -4,6 +4,13 @@ public struct RecommendationService: Sendable {
     public init() {}
 
     public func recommendation(for group: DuplicateGroup, options: ScanOptions) -> FileRecommendation {
+        if group.containsSameUnderlyingFile, let keep = group.files.first {
+            let reasons = Dictionary(uniqueKeysWithValues: group.files.map { file in
+                (file.id, [RecommendationReason.needsReview])
+            })
+            return FileRecommendation(keepFileID: keep.id, removalFileIDs: [], reasons: reasons)
+        }
+
         guard let keep = group.files.min(by: { score(for: $0, options: options) < score(for: $1, options: options) }) else {
             return FileRecommendation(keepFileID: UUID(), removalFileIDs: [])
         }

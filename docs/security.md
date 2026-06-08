@@ -2,9 +2,9 @@
 
 Doppel's safety model is intentionally conservative.
 
-## No Network
+## No In-App Network
 
-The app has no network code and no network entitlements. `scripts/check_no_network_entitlements.sh` fails if common network entitlement keys are introduced.
+The app has no in-app network code and no network entitlements. `scripts/check_no_network_entitlements.sh` fails if common network entitlement keys are introduced. The update command opens the official GitHub Releases page in the user's browser instead of downloading or executing updates inside Doppel.
 
 ## File Access
 

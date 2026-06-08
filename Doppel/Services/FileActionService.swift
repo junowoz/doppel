@@ -76,7 +76,7 @@ public struct FileActionService {
             guard try hashService.sha256(for: removalFile.url) == group.sha256 else {
                 throw FileActionError.hashChanged(removalFile.path)
             }
-            if compareMode == .paranoid {
+            if compareMode != .fast {
                 guard try byteCompareService.contentsAreEqual(keepFile.url, removalFile.url) else {
                     throw FileActionError.byteComparisonFailed(removalFile.path)
                 }

@@ -26,4 +26,21 @@ final class RecommendationServiceTests: XCTestCase {
             XCTAssertTrue(recommendation.removalFileIDs.isEmpty)
         }
     }
+
+    func testHardlinkedFilesAreNotRecommendedForRemoval() throws {
+        try withTemporaryDirectory { directory in
+            let originalURL = try writeFile(directory, "original.txt", makeData("same"))
+            let hardlinkURL = directory.appendingPathComponent("hardlink.txt")
+            try FileManager.default.linkItem(at: originalURL, to: hardlinkURL)
+
+            let original = try ScannedFile(url: originalURL)
+            let hardlink = try ScannedFile(url: hardlinkURL)
+            let group = DuplicateGroup(files: [original, hardlink], sha256: "hash", verificationLevel: .byteByByteConfirmed)
+
+            let recommendation = RecommendationService().recommendation(for: group, options: .init())
+
+            XCTAssertEqual(recommendation.keepFileID, original.id)
+            XCTAssertTrue(recommendation.removalFileIDs.isEmpty)
+        }
+    }
 }

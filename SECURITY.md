@@ -24,3 +24,7 @@ Include:
 - Doppel must move files to Trash with `FileManager.trashItem`.
 - Doppel must revalidate files before moving them.
 - Doppel must keep at least one file in every duplicate group.
+
+## Release Integrity
+
+Release artifacts include SHA-256 checksums. Public releases should use Apple Developer ID signing and notarization when available.

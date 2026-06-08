@@ -11,7 +11,7 @@ struct DuplicateGroupsView: View {
             } else if viewModel.duplicateGroups.isEmpty {
                 EmptyStateView(
                     title: "No duplicate groups",
-                    message: "Doppel shows exact duplicates after size, hash, and byte checks."
+                    message: "Add a folder, scan it, and review exact duplicate matches before moving anything to Trash."
                 )
             } else {
                 List(selection: $viewModel.selectedGroupID) {
@@ -41,6 +41,7 @@ struct DuplicateGroupsView: View {
                         }
                     }
                 }
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
         }
     }

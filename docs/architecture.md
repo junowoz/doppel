@@ -25,4 +25,4 @@ Doppel is organized around a testable core and a native SwiftUI shell.
 
 ## Safety Boundary
 
-Only `FileActionService` moves files. It validates existence, size, SHA-256, and optional byte comparison before calling `FileManager.trashItem`.
+Only `FileActionService` moves files. It validates existence, size, SHA-256, and byte comparison in Safe and Paranoid modes before calling `FileManager.trashItem`.
