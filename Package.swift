@@ -9,7 +9,8 @@ let package = Package(
     ],
     products: [
         .library(name: "DoppelCore", targets: ["DoppelCore"]),
-        .executable(name: "Doppel", targets: ["Doppel"])
+        .executable(name: "Doppel", targets: ["Doppel"]),
+        .executable(name: "DoppelUpdater", targets: ["DoppelUpdater"])
     ],
     targets: [
         .target(
@@ -23,6 +24,10 @@ let package = Package(
             exclude: [
                 "Resources"
             ]
+        ),
+        .executableTarget(
+            name: "DoppelUpdater",
+            path: "DoppelUpdater"
         ),
         .testTarget(
             name: "DoppelTests",

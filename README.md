@@ -8,7 +8,7 @@
 
 ![Doppel main window](docs/screenshots/doppel-main-window.png)
 
-Doppel is a native Apple Silicon macOS app for finding exact duplicate files in one or more folders. It is built for local-first use: no login, no in-app internet access, no analytics, no telemetry, no tracking, and no external SDKs.
+Doppel is a native Apple Silicon macOS app for finding exact duplicate files in one or more folders. It is built for local-first use: no login, no analytics, no telemetry, no tracking, and no external SDKs. The only in-app network feature is the user-triggered updater, which checks official GitHub Releases.
 
 ## Download
 
@@ -30,22 +30,23 @@ After downloading, unzip the app and move `Doppel.app` to Applications. Builds a
 - Native SwiftUI interface with sidebar, duplicate groups, and preview details.
 - Move selected duplicates to Trash. Doppel never deletes files permanently.
 - Export JSON reports.
-- Safe update entrypoint that opens the official GitHub Releases page without adding network access inside the app.
+- Built-in updater that checks GitHub Releases, downloads the app archive, verifies the published SHA-256 checksum, validates the app bundle, installs, relaunches, and removes temporary update files.
 
 ## Screenshots
 
 Screenshots live in [`docs/screenshots`](docs/screenshots). Replace them with polished release screenshots when the UI is staged exactly how you want it.
 
+![Doppel update panel](docs/screenshots/doppel-update-window.png)
+
 ## Security And Privacy
 
 Doppel is designed to be private by default.
 
-- No in-app network calls.
-- No network entitlements.
-- No telemetry, analytics, or tracking.
+- No telemetry, analytics, tracking, or background network calls.
+- Network client entitlement is used only for manual GitHub Releases update checks.
 - No login.
 - No cloud service.
-- No permanent deletion in v0.1.0.
+- No permanent deletion.
 - File actions are performed through native `FileManager` APIs.
 - Selected files are moved to Trash, never permanently deleted.
 - At least one file is always kept in each duplicate group.
@@ -55,7 +56,7 @@ Always review before moving files to the Trash.
 
 ## How Detection Works
 
-The MVP scans files, groups candidates by logical file size, calculates SHA-256 for same-sized candidates, and confirms matches byte by byte in Safe and Paranoid modes. Before moving files, Doppel revalidates the keep file and selected duplicate files.
+Doppel scans files, groups candidates by logical file size, calculates SHA-256 for same-sized candidates, and confirms matches byte by byte in Safe and Paranoid modes. Before moving files, Doppel revalidates the keep file and selected duplicate files.
 
 Verification levels shown in the app:
 
@@ -76,7 +77,17 @@ Verification levels shown in the app:
 
 ## Updates
 
-Doppel does not auto-download or execute updates inside the app. The **Check for Updates** command opens the official GitHub Releases page in your browser. This keeps the app itself network-free and avoids a hidden update channel.
+Doppel can update itself from the standalone app. The **Check for Updates** command contacts the official GitHub Releases API only after you click it, then downloads `Doppel.app.zip` and `Doppel.app.zip.sha256`.
+
+Before installation, Doppel verifies:
+
+- The downloaded ZIP matches the published SHA-256 checksum.
+- The extracted bundle identifier is `com.junowoz.doppel`.
+- The extracted app version matches the GitHub release tag.
+- The executable is Apple Silicon only (`arm64`).
+- The app bundle passes `codesign --verify --deep --strict`.
+
+Update downloads use an ephemeral URL session and a temporary `DoppelUpdate-*` directory. The updater helper removes temporary files after installation, and Doppel cleans stale update directories on launch.
 
 ## Build Locally
 
@@ -106,7 +117,7 @@ Build a release app bundle:
 ./scripts/build_release.sh
 ```
 
-The release script builds an `arm64` app bundle, embeds the app icon, performs ad-hoc signing by default, and writes ZIP/checksum artifacts under `dist/`.
+The release script builds an `arm64` app bundle, embeds the app icon and updater helper, performs ad-hoc signing by default, and writes ZIP/checksum artifacts under `dist/`.
 
 ## Tests
 
@@ -145,6 +156,7 @@ Do not commit real secrets.
 
 - v0.1.0: MVP with scanning, byte confirmation, recommendations, Trash moves, JSON export, tests, docs, and CI.
 - v0.1.1: Launch polish, Apple Silicon release packaging, app icon, screenshot assets, safe update entrypoint, and hardlink recommendation hardening.
+- v0.1.2: Built-in GitHub Releases updater with checksum validation, bundle validation, helper-based install, and temporary file cleanup.
 - v0.2.0: Multiple folder polish, CSV export UI, image previews, review folder moves, progress improvements.
 - v0.3.0: Video previews, file filters, minimum size polish, security-scoped bookmark persistence, iCloud handling.
 - v1.0.0: Signing, notarization, polished DMG, expanded tests, stable security and privacy policies.

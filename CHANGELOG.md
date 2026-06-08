@@ -2,6 +2,21 @@
 
 All notable changes to Doppel will be documented in this file.
 
+## [0.1.2] - 2026-06-08
+
+### Added
+
+- Built-in **Check for Updates** panel for standalone app updates from GitHub Releases.
+- `DoppelUpdater` helper app for replacing the current app bundle after Doppel quits.
+- Update validation for ZIP SHA-256 checksums, bundle identifier, release version, Apple Silicon architecture, and code signature.
+- Ephemeral update downloads with temporary staging cleanup.
+
+### Changed
+
+- Added the sandbox network client entitlement only for user-triggered GitHub Releases update checks.
+- Release builds now embed and sign the updater helper.
+- Security, privacy, architecture, and release docs now describe the updater boundary.
+
 ## [0.1.1] - 2026-06-08
 
 ### Added

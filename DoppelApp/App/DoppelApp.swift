@@ -4,6 +4,10 @@ import SwiftUI
 
 @main
 struct DoppelApp: App {
+    init() {
+        try? AppUpdateService().cleanupTemporaryFiles()
+    }
+
     var body: some Scene {
         WindowGroup {
             MainView()
@@ -19,7 +23,7 @@ struct DoppelApp: App {
                     NSWorkspace.shared.open(AppMetadata.repositoryURL)
                 }
                 Button("Check for Updates") {
-                    NSWorkspace.shared.open(AppMetadata.releasesURL)
+                    NotificationCenter.default.post(name: .doppelShowUpdater, object: nil)
                 }
             }
         }

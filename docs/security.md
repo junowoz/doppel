@@ -2,9 +2,19 @@
 
 Doppel's safety model is intentionally conservative.
 
-## No In-App Network
+## Network Boundary
 
-The app has no in-app network code and no network entitlements. `scripts/check_no_network_entitlements.sh` fails if common network entitlement keys are introduced. The update command opens the official GitHub Releases page in the user's browser instead of downloading or executing updates inside Doppel.
+The app has no telemetry, analytics, tracking, or background network calls. The only in-app network path is the manual updater, which contacts official GitHub Releases after the user clicks **Check for Updates**. `scripts/check_secure_entitlements.sh` verifies that Doppel remains sandboxed, keeps user-selected file access, allows client networking for updates, and never requests a network server entitlement.
+
+Update downloads use `URLSessionConfiguration.ephemeral`, are staged in a temporary `DoppelUpdate-*` directory, and are removed after installation. Doppel also removes stale `DoppelUpdate-*` and `DoppelPrevious-*` directories on launch.
+
+Before installing an update, Doppel validates:
+
+1. The app ZIP matches the published SHA-256 checksum.
+2. The bundle identifier is `com.junowoz.doppel`.
+3. The bundle version matches the release tag.
+4. The executable is Apple Silicon only.
+5. `codesign --verify --deep --strict` passes.
 
 ## File Access
 

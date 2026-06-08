@@ -4,8 +4,10 @@ import SwiftUI
 
 struct MainView: View {
     @StateObject private var viewModel = MainViewModel()
+    @StateObject private var updateViewModel = AppUpdateViewModel()
     @State private var selectedFolder: URL?
     @State private var showTrashConfirmation = false
+    @State private var showUpdater = false
 
     var body: some View {
         NavigationSplitView {
@@ -65,11 +67,11 @@ struct MainView: View {
                 .disabled(viewModel.scanResult == nil)
 
                 Button {
-                    NSWorkspace.shared.open(AppMetadata.releasesURL)
+                    showUpdater = true
                 } label: {
                     Label("Check for Updates", systemImage: "arrow.down.circle")
                 }
-                .help("Open the official Doppel releases page in your browser.")
+                .help("Check GitHub Releases and install a verified Doppel update.")
 
                 Button {
                     NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
@@ -92,6 +94,12 @@ struct MainView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("Doppel never deletes files permanently. Review before moving files.")
+        }
+        .sheet(isPresented: $showUpdater) {
+            AppUpdateSheetView(viewModel: updateViewModel)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .doppelShowUpdater)) { _ in
+            showUpdater = true
         }
     }
 

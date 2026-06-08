@@ -1,9 +1,10 @@
-import AppKit
 import DoppelCore
 import SwiftUI
 
 struct SettingsView: View {
     @StateObject private var viewModel = SettingsViewModel()
+    @StateObject private var updateViewModel = AppUpdateViewModel()
+    @State private var showUpdater = false
 
     var body: some View {
         Form {
@@ -14,7 +15,7 @@ struct SettingsView: View {
             }
             Toggle("Include macOS packages", isOn: $viewModel.settings.includePackages)
             Button("Check for Updates") {
-                NSWorkspace.shared.open(AppMetadata.releasesURL)
+                showUpdater = true
             }
             Button("Save") {
                 try? viewModel.save()
@@ -23,5 +24,8 @@ struct SettingsView: View {
         .formStyle(.grouped)
         .padding()
         .frame(width: 420)
+        .sheet(isPresented: $showUpdater) {
+            AppUpdateSheetView(viewModel: updateViewModel)
+        }
     }
 }
