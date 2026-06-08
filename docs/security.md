@@ -13,8 +13,8 @@ Before installing an update, Doppel validates:
 1. The app ZIP matches the published SHA-256 checksum.
 2. The bundle identifier is `com.junowoz.doppel`.
 3. The bundle version matches the release tag.
-4. The executable is Apple Silicon only.
-5. `codesign --verify --deep --strict` passes.
+4. The executable is Apple Silicon only based on native Mach-O inspection.
+5. The app bundle signature passes native Security.framework validation.
 
 ## File Access
 

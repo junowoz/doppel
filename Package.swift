@@ -27,6 +27,7 @@ let package = Package(
         ),
         .executableTarget(
             name: "DoppelUpdater",
+            dependencies: ["DoppelCore"],
             path: "DoppelUpdater"
         ),
         .testTarget(

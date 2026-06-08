@@ -2,6 +2,12 @@
 
 All notable changes to Doppel will be documented in this file.
 
+## [0.1.5] - 2026-06-08
+
+### Fixed
+
+- Fixed in-app update validation inside the macOS App Sandbox by replacing `lipo` and `codesign` subprocess checks with native Mach-O and Security.framework validation.
+
 ## [0.1.4] - 2026-06-08
 
 ### Added

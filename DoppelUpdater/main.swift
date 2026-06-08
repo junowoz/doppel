@@ -1,4 +1,5 @@
 import Darwin
+import DoppelCore
 import Foundation
 
 private struct UpdaterArguments {
@@ -121,25 +122,7 @@ private enum DoppelUpdater {
     }
 
     private static func validateAppBundle(_ appURL: URL) throws {
-        let infoPlistURL = appURL.appendingPathComponent("Contents/Info.plist")
-        guard
-            let plist = NSDictionary(contentsOf: infoPlistURL),
-            plist["CFBundleIdentifier"] as? String == "com.junowoz.doppel"
-        else {
-            throw UpdaterError.invalidBundle("Bundle identifier mismatch.")
-        }
-
-        let executableURL = appURL.appendingPathComponent("Contents/MacOS/Doppel")
-        guard FileManager.default.fileExists(atPath: executableURL.path) else {
-            throw UpdaterError.invalidBundle("Executable is missing.")
-        }
-
-        let archs = try runProcess("/usr/bin/lipo", ["-archs", executableURL.path])
-        guard archs.split(whereSeparator: \.isWhitespace) == ["arm64"] else {
-            throw UpdaterError.invalidBundle("Executable is not Apple Silicon-only.")
-        }
-
-        _ = try runProcess("/usr/bin/codesign", ["--verify", "--deep", "--strict", appURL.path])
+        try AppBundleValidator.validateDoppelAppBundle(at: appURL)
     }
 
     private static func openApp(_ appURL: URL) throws {
@@ -170,4 +153,3 @@ private enum DoppelUpdater {
         return output.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
-

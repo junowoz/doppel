@@ -202,36 +202,10 @@ public final class AppUpdateService: @unchecked Sendable {
     }
 
     private func validateAppBundle(_ appBundleURL: URL, expectedVersion: String) throws {
-        guard appBundleURL.pathExtension == "app" else {
-            throw AppUpdateError.invalidAppBundle("The update is not an app bundle.")
-        }
-        guard let bundle = Bundle(url: appBundleURL) else {
-            throw AppUpdateError.invalidAppBundle("The bundle metadata could not be read.")
-        }
-        guard bundle.bundleIdentifier == AppMetadata.bundleIdentifier else {
-            throw AppUpdateError.invalidAppBundle("The bundle identifier does not match Doppel.")
-        }
-        guard let version = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
-              AppVersion(version) == AppVersion(expectedVersion) else {
-            throw AppUpdateError.invalidAppBundle("The bundle version does not match the release.")
-        }
-
-        let executableURL = appBundleURL.appendingPathComponent("Contents/MacOS/Doppel")
-        guard fileManager.fileExists(atPath: executableURL.path) else {
-            throw AppUpdateError.invalidAppBundle("The app executable is missing.")
-        }
-
-        let archs = try runProcess(
-            executableURL: URL(fileURLWithPath: "/usr/bin/lipo"),
-            arguments: ["-archs", executableURL.path]
-        )
-        guard archs.split(whereSeparator: \.isWhitespace) == ["arm64"] else {
-            throw AppUpdateError.invalidAppBundle("The app is not Apple Silicon-only.")
-        }
-
-        try runProcess(
-            executableURL: URL(fileURLWithPath: "/usr/bin/codesign"),
-            arguments: ["--verify", "--deep", "--strict", appBundleURL.path]
+        try AppBundleValidator.validateDoppelAppBundle(
+            at: appBundleURL,
+            expectedVersion: expectedVersion,
+            fileManager: fileManager
         )
     }
 

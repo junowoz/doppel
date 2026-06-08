@@ -101,8 +101,8 @@ Before installation, Doppel verifies:
 - The downloaded ZIP matches the published SHA-256 checksum.
 - The extracted bundle identifier is `com.junowoz.doppel`.
 - The extracted app version matches the GitHub release tag.
-- The executable is Apple Silicon only (`arm64`).
-- The app bundle passes `codesign --verify --deep --strict`.
+- The executable is Apple Silicon only (`arm64`) based on native Mach-O inspection.
+- The app bundle signature passes native Security.framework validation.
 
 Update downloads use an ephemeral URL session and a temporary `DoppelUpdate-*` directory. The updater helper removes temporary files after installation, and Doppel cleans stale update directories on launch.
 
@@ -176,6 +176,7 @@ Do not commit real secrets.
 - v0.1.2: Built-in GitHub Releases updater with checksum validation, bundle validation, helper-based install, and temporary file cleanup.
 - v0.1.3: Polished DMG installer layout with Applications shortcut and drag-to-install background.
 - v0.1.4: Manual keep/remove selection before moving duplicates to Trash.
+- v0.1.5: Sandbox-safe update validation without `lipo` or `codesign` subprocesses.
 - v0.2.0: Multiple folder polish, CSV export UI, image previews, review folder moves, progress improvements.
 - v0.3.0: Video previews, file filters, minimum size polish, security-scoped bookmark persistence, iCloud handling.
 - v1.0.0: Signing, notarization, polished DMG, expanded tests, stable security and privacy policies.
