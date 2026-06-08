@@ -114,22 +114,16 @@ public final class MainViewModel: ObservableObject {
         let options = options
         let service = duplicateDetectionService
 
-        scanTask = Task.detached(priority: .userInitiated) { [weak self] in
+        scanTask = Task(priority: .userInitiated) { [weak self, folders, options, service] in
             do {
                 let result = try await service.scan(folders: folders, options: options)
-                await MainActor.run {
-                    self?.applyScanResult(result)
-                }
+                self?.applyScanResult(result)
             } catch is CancellationError {
-                await MainActor.run {
-                    self?.scanState = .cancelled
-                    self?.statusMessage = "Cancelled"
-                }
+                self?.scanState = .cancelled
+                self?.statusMessage = "Cancelled"
             } catch {
-                await MainActor.run {
-                    self?.scanState = .error
-                    self?.statusMessage = error.localizedDescription
-                }
+                self?.scanState = .error
+                self?.statusMessage = error.localizedDescription
             }
         }
     }
