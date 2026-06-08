@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Check no network entitlements
+        run: ./scripts/check_no_network_entitlements.sh
+
+      - name: Swift tests
+        run: swift test 2>&1 | tee swift-test.log
+
+      - name: xcodebuild clean
+        run: xcodebuild -scheme Doppel -destination 'platform=macOS,arch=arm64' clean 2>&1 | tee xcode-clean.log
+
+      - name: xcodebuild build
+        run: xcodebuild -scheme Doppel -destination 'platform=macOS,arch=arm64' build 2>&1 | tee xcode-build.log
+
+      - name: xcodebuild test
+        run: xcodebuild -scheme Doppel -destination 'platform=macOS,arch=arm64' test 2>&1 | tee xcode-test.log
+
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            *.log
+            .build/**/*.log

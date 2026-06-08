@@ -1,0 +1,40 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Check no network entitlements
+        run: ./scripts/check_no_network_entitlements.sh
+
+      - name: Build release
+        run: VERSION="${GITHUB_REF_NAME#v}" ./scripts/build_release.sh
+
+      - name: Package DMG
+        run: ./scripts/package_dmg.sh
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            dist/Doppel.app.zip \
+            dist/Doppel.app.zip.sha256 \
+            dist/Doppel.dmg \
+            dist/Doppel.dmg.sha256 \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file CHANGELOG.md
